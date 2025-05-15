@@ -4,7 +4,6 @@
 
 A modern web application that uses a Random Forest Machine Learning algorithm to predict a person's risk of heart disease. By entering health information such as age, gender, blood pressure, and cholesterol levels, users can get an instant prediction about their heart health risk. The application is built with Flask and features a clean, user-friendly interface.
 
-![Heart Disease Predictor](https://github.com/asthasharma98/Heart-Disease-Prediction-Deployment/blob/master/Readme_resources/heart_disease.gif)
 
 ## Features
 
