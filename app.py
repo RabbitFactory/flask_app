@@ -1,7 +1,9 @@
 # Importing essential libraries
 from flask import Flask, render_template, request
-import pickle
 import numpy as np
+import pandas as pd
+import pickle
+from sklearn.preprocessing import StandardScaler
 
 # Load the Random Forest CLassifier model
 filename = 'heart-disease-prediction-knn-model.pkl'
@@ -11,34 +13,51 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-	return render_template('main.html')
+    return render_template('main.html')
 
-
-@app.route('/predict', methods=['GET','POST'])
+@app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
-
+        # Get form data
         age = int(request.form['age'])
-        sex = request.form.get('sex')
-        cp = request.form.get('cp')
+        sex = int(request.form['sex'])
+        cp = int(request.form['cp'])
         trestbps = int(request.form['trestbps'])
         chol = int(request.form['chol'])
-        fbs = request.form.get('fbs')
+        fbs = int(request.form['fbs'])
         restecg = int(request.form['restecg'])
         thalach = int(request.form['thalach'])
-        exang = request.form.get('exang')
+        exang = int(request.form['exang'])
         oldpeak = float(request.form['oldpeak'])
-        slope = request.form.get('slope')
+        slope = int(request.form['slope'])
         ca = int(request.form['ca'])
-        thal = request.form.get('thal')
+        thal = int(request.form['thal'])
         
-        data = np.array([[age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal]])
-        my_prediction = model.predict(data)
+        # Create a list with all features
+        data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
         
-        return render_template('result.html', prediction=my_prediction)
+        # Standardize the data
+        # Note: In a production environment, we should use the same scaler that was used during training
+        # Since we don't have access to that scaler, we'll use a more appropriate approach for standardizing a single data point
         
+        # Load the dataset to compute mean and std for standardization
+        heart_df = pd.read_csv("heart_cleveland_upload.csv")
+        # Rename 'condition' to 'target' to match training data
+        heart_df = heart_df.rename(columns={'condition':'target'})
+        # Get feature data
+        X = heart_df.drop(columns='target')
         
+        # Create a new scaler and fit it on the training data
+        scaler = StandardScaler()
+        scaler.fit(X)
+        
+        # Transform the input data using the fitted scaler
+        data_scaled = scaler.transform(data)
+        
+        # Make prediction
+        prediction = model.predict(data_scaled)
+        
+        return render_template('result.html', prediction=prediction[0])
 
 if __name__ == '__main__':
-	app.run(debug=True)
-
+    app.run(debug=True)
